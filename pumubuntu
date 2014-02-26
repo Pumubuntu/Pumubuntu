@@ -367,7 +367,11 @@ class OptionsWindow(gtk.Window):
 
 
 class Notifications(object):
+    "Notifications handler"
+
     def __init__(self):
+        "Initializes notification handler and creates notifications"
+
         pynotify.init("pumubuntu")
         self._run = pynotify.Notification("Here we go!","Time to get to work!")
         self._run.set_timeout(1)
@@ -381,18 +385,23 @@ class Notifications(object):
         self._show.set_timeout(1)
 
     def run(self):
+        "Show running notification"
         self._run.show()
 
     def stop(self):
+        "Shows stop notification"
         self._stop.show()
 
     def rest(self):
+        "Shows rest notification"
         self._rest.show()
 
     def pause(self):
+        "Shows pause notification"
         self._pause.show()
 
     def show(self, time):
+        "Shows blank notification"
         self._show.update(time)
         self._show.show()
 
