@@ -292,7 +292,11 @@ class Preferences():
 
 
 class OptionsWindow(gtk.Window):
+    "Options window"
+
     def __init__(self):
+        "Create window"
+
         gtk.Window.__init__(self)
         self.set_title("Pumubuntu") # TODO: Set an icon for this window...
         self.prefs = Preferences()
@@ -343,6 +347,8 @@ class OptionsWindow(gtk.Window):
         self.add(self.main_box)
 
     def options_event(self, button, event):
+        "Window's events"
+
         if(event == "save"):
             if(self.entry1.get_text() != "" and self.entry2.get_text() != "" and self.entry3.get_text() != ""and self.entry4.get_text() != ""):
                 try:
@@ -358,6 +364,7 @@ class OptionsWindow(gtk.Window):
                     dialog.destroy()
         if(event == "quit"):
             self.destroy()
+
 
 class Notifications(object):
     def __init__(self):
