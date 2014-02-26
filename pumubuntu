@@ -405,19 +405,28 @@ class Notifications(object):
         self._show.update(time)
         self._show.show()
 
+
 class Keybinds(object):
+    "Keybind handler"
+
     def __init__(self, menu_event, preferences):
+        "Initializes menu event and preferences"
+
         self.menu_event = menu_event
         self.preferences = preferences
         self.instance = self
 
     def bind(self):
+        "Add new keybinds"
+
         keystr1 = self.preferences.get_start_stop_keybind()
         keybinder.bind(keystr1, self.menu_event, None, "play_pause")
         keystr2 = self.preferences.get_show_time_keybind()
         keybinder.bind(keystr2, self.menu_event, None, "show_time")
 
     def unbind(self):
+        "Remove keybinds"
+
         keystr1 = self.preferences.get_start_stop_keybind()
         keybinder.unbind(keystr1)
         keystr2 = self.preferences.get_show_time_keybind()
