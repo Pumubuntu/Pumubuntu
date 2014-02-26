@@ -24,13 +24,24 @@ script_name = os.path.basename(sys.argv[0])
 
 PREFERENCES_FILENAME = os.path.join(resources_dir, "prefs.json")
 class Status():
+    """Pomodoro Status. Takes 4 possible values:
+      - STOP, the pomodoro timer is not running
+      - RUN, the pomodoro timer is up and running
+      - BREAK, short break (3-5min)
+      - PAUSE, long break (15-30min)
+    """
+
     def __init__(self, notification_icon):
+        "Initializes the pomodoro status"
+
         self.current_status = Status.STOP
         self.pomodoro_stage = 0
         self.indicator = notification_icon
         self.notifications = Notifications()
         
     def next(self):
+        "Sets and returns the next status"
+
         if (self.pomodoro_stage >= 4):
             self.current_status = Status.PAUSE
             self.pomodoro_stage = 0
@@ -43,17 +54,23 @@ class Status():
         return self.current_status
 
     def stop(self):
+        "Stops the pomodoro and resets the pomodoro count to 0"
+
         self.current_status = Status.STOP
         self.pomodoro_stage = 0 #we reset and start again. If a Pomodoro Begins, It Has to Ring
         self.notify()
 
     def isRunning(self):
+        "Returns current status"
         return self.current_status
 
     def getStage(self):
+        "Returns current stage"
         return self.pomodoro_stage
 
     def notify(self):
+        "Plays a notification sound"
+
         soundfile=resources_dir + "/audio/"
         iconfile=resources_dir + "/images/"
         if (self.current_status == self.STOP):
@@ -99,6 +116,8 @@ class Status():
             dsp.close()
 
     def getMinutes(self): #returns current status minutes
+        "Returns current status minutes"
+
         prefs = Preferences()
         if (self.current_status == self.STOP):
             return 0 #minutes
