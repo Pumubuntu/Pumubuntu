@@ -133,23 +133,30 @@ class Status():
     BREAK = 2
     PAUSE = 3
 
+
 class Timer():
+    "Pomodoro timer"
+
     def __init__(self, status, text_label):
+        "Initializes thread"
+
         self.thread = self.CountingThread(text_label, status)
         self.thread.daemon=True
         self.thread.event = threading.Event()
         self.thread.event.clear()
         self.thread.start()
 
-
     def isRunning(self):
+        "Returns thread's status"
         return self.thread.status.isRunning()
 
     def stop(self):
+        "Pauses the thread and resets the pomodoro"
         self.thread.event.clear() # pause thread
         self.thread.stop() # reset pomodoro
 
     def start(self):
+        "Starts a new pomodoro and run the thread"
         self.thread.nextStage() # start new pomodoro (we were reset by the stop method. remember?)
         self.thread.event.set()  #run thread
 
