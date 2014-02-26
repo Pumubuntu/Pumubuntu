@@ -24,13 +24,24 @@ script_name = os.path.basename(sys.argv[0])
 
 PREFERENCES_FILENAME = os.path.join(resources_dir, "prefs.json")
 class Status():
+    """Pomodoro Status. Takes 4 possible values:
+      - STOP, the pomodoro timer is not running
+      - RUN, the pomodoro timer is up and running
+      - BREAK, short break (3-5min)
+      - PAUSE, long break (15-30min)
+    """
+
     def __init__(self, notification_icon):
+        "Initializes the pomodoro status"
+
         self.current_status = Status.STOP
         self.pomodoro_stage = 0
         self.indicator = notification_icon
         self.notifications = Notifications()
         
     def next(self):
+        "Sets and returns the next status"
+
         if (self.pomodoro_stage >= 4):
             self.current_status = Status.PAUSE
             self.pomodoro_stage = 0
@@ -43,17 +54,23 @@ class Status():
         return self.current_status
 
     def stop(self):
+        "Stops the pomodoro and resets the pomodoro count to 0"
+
         self.current_status = Status.STOP
         self.pomodoro_stage = 0 #we reset and start again. If a Pomodoro Begins, It Has to Ring
         self.notify()
 
     def isRunning(self):
+        "Returns current status"
         return self.current_status
 
     def getStage(self):
+        "Returns current stage"
         return self.pomodoro_stage
 
     def notify(self):
+        "Plays a notification sound"
+
         soundfile=resources_dir + "/audio/"
         iconfile=resources_dir + "/images/"
         if (self.current_status == self.STOP):
@@ -99,6 +116,8 @@ class Status():
             dsp.close()
 
     def getMinutes(self): #returns current status minutes
+        "Returns current status minutes"
+
         prefs = Preferences()
         if (self.current_status == self.STOP):
             return 0 #minutes
@@ -114,28 +133,39 @@ class Status():
     BREAK = 2
     PAUSE = 3
 
+
 class Timer():
+    "Pomodoro timer"
+
     def __init__(self, status, text_label):
+        "Initializes thread"
+
         self.thread = self.CountingThread(text_label, status)
         self.thread.daemon=True
         self.thread.event = threading.Event()
         self.thread.event.clear()
         self.thread.start()
 
-
     def isRunning(self):
+        "Returns thread's status"
         return self.thread.status.isRunning()
 
     def stop(self):
+        "Pauses the thread and resets the pomodoro"
         self.thread.event.clear() # pause thread
         self.thread.stop() # reset pomodoro
 
     def start(self):
+        "Starts a new pomodoro and run the thread"
         self.thread.nextStage() # start new pomodoro (we were reset by the stop method. remember?)
         self.thread.event.set()  #run thread
 
     class CountingThread(threading.Thread):
+        "CountingThread"
+
         def __init__(self, text_label,status):
+            "Initializes thread, text label, status and time"
+
             threading.Thread.__init__(self)
             self.text_label = text_label
             self.status = status
@@ -143,12 +173,16 @@ class Timer():
             self.seconds = 0
 
         def stop(self):
+            "Stops the pomodoro"
             self.status.stop()
 
         def nextStage(self):
+            "Advances the pomodoro's status"
             self.status.next() # next status and Play a sound! :D
 
         def run(self):
+            "Runs thread"
+
             while (True): #this thread is not restarted
                 self.event.wait() # wait until we are allowed to run
                 if (self.status.isRunning()):
@@ -166,17 +200,25 @@ class Timer():
                     self.switch_status();
 
         def update_timer(self):
+            "Updates timer"
             self.minutes = self.status.getMinutes()
             self.seconds = 0
+
         def switch_status(self):
+            "Switch to next stage"
             if (self.status.isRunning()):
-                            self.nextStage()
+                self.nextStage()
             #    print("CountingThread: finished..." + str(self.status.isRunning()))
             #else:
             #    print("CountingThread: Pomodoro manually stopped. Status: " + str(self.status.isRunning()))
 
+
 class Preferences():
+    "Preferences handler"
+
     def __init__(self):
+        "Initializes preferences and load work time from file"
+
         self.KEY_WORK_TIME = "WT"
         self.KEY_LONG_BREAK_TIME = "LT"
         self.KEY_SHORT_BREAK_TIME = "ST"
@@ -195,6 +237,8 @@ class Preferences():
         self.read_work_time()
 
     def save_preferences(self, work_time, short_break_time, long_break_time, start_stop_keybind, show_time_keybind):
+        "Save preferences"
+
         keybinds.instance.unbind()
 
         obj = {self.KEY_WORK_TIME: work_time, self.KEY_SHORT_BREAK_TIME: short_break_time, self.KEY_LONG_BREAK_TIME: long_break_time, self.KEY_START_STOP_KEYBIND: start_stop_keybind, self.KEY_SHOW_TIME_KEYBIND: show_time_keybind }
@@ -208,6 +252,8 @@ class Preferences():
         keybinds.instance.bind()
 
     def read_work_time(self):
+        "Read work time from file"
+
         try:
             file = open(PREFERENCES_FILENAME, "r")
             dump = json.loads(file.read())
@@ -225,23 +271,32 @@ class Preferences():
             self.SAVED_SHOW_TIME_KEYBIND = self.DEFAULT_SHOW_TIME_KEYBIND
 
     def get_work_time(self):
-            return self.SAVED_WORK_TIME
+        "Get saved work time"
+        return self.SAVED_WORK_TIME
 
     def get_long_break_time(self):
-
-            return self.SAVED_LONG_BREAK_TIME
+        "Get saved long break time"
+        return self.SAVED_LONG_BREAK_TIME
 
     def get_short_break_time(self):
-            return self.SAVED_SHORT_BREAK_TIME
+        "Get short break time"
+        return self.SAVED_SHORT_BREAK_TIME
 
     def get_start_stop_keybind(self):
-            return self.SAVED_START_STOP_KEYBIND
+        "Get start/stop keybind"
+        return self.SAVED_START_STOP_KEYBIND
 
     def get_show_time_keybind(self):
-            return self.SAVED_SHOW_TIME_KEYBIND
+        "Get show time keybind"
+        return self.SAVED_SHOW_TIME_KEYBIND
+
 
 class OptionsWindow(gtk.Window):
+    "Options window"
+
     def __init__(self):
+        "Create window"
+
         gtk.Window.__init__(self)
         self.set_title("Pumubuntu") # TODO: Set an icon for this window...
         self.prefs = Preferences()
@@ -292,6 +347,8 @@ class OptionsWindow(gtk.Window):
         self.add(self.main_box)
 
     def options_event(self, button, event):
+        "Window's events"
+
         if(event == "save"):
             if(self.entry1.get_text() != "" and self.entry2.get_text() != "" and self.entry3.get_text() != ""and self.entry4.get_text() != ""):
                 try:
@@ -308,8 +365,13 @@ class OptionsWindow(gtk.Window):
         if(event == "quit"):
             self.destroy()
 
+
 class Notifications(object):
+    "Notifications handler"
+
     def __init__(self):
+        "Initializes notification handler and creates notifications"
+
         pynotify.init("pumubuntu")
         self._run = pynotify.Notification("Here we go!","Time to get to work!")
         self._run.set_timeout(1)
@@ -323,34 +385,48 @@ class Notifications(object):
         self._show.set_timeout(1)
 
     def run(self):
+        "Show running notification"
         self._run.show()
 
     def stop(self):
+        "Shows stop notification"
         self._stop.show()
 
     def rest(self):
+        "Shows rest notification"
         self._rest.show()
 
     def pause(self):
+        "Shows pause notification"
         self._pause.show()
 
     def show(self, time):
+        "Shows blank notification"
         self._show.update(time)
         self._show.show()
 
+
 class Keybinds(object):
+    "Keybind handler"
+
     def __init__(self, menu_event, preferences):
+        "Initializes menu event and preferences"
+
         self.menu_event = menu_event
         self.preferences = preferences
         self.instance = self
 
     def bind(self):
+        "Add new keybinds"
+
         keystr1 = self.preferences.get_start_stop_keybind()
         keybinder.bind(keystr1, self.menu_event, None, "play_pause")
         keystr2 = self.preferences.get_show_time_keybind()
         keybinder.bind(keystr2, self.menu_event, None, "show_time")
 
     def unbind(self):
+        "Remove keybinds"
+
         keystr1 = self.preferences.get_start_stop_keybind()
         keybinder.unbind(keystr1)
         keystr2 = self.preferences.get_show_time_keybind()
