@@ -212,8 +212,13 @@ class Timer():
             #else:
             #    print("CountingThread: Pomodoro manually stopped. Status: " + str(self.status.isRunning()))
 
+
 class Preferences():
+    "Preferences handler"
+
     def __init__(self):
+        "Initializes preferences and load work time from file"
+
         self.KEY_WORK_TIME = "WT"
         self.KEY_LONG_BREAK_TIME = "LT"
         self.KEY_SHORT_BREAK_TIME = "ST"
@@ -232,6 +237,8 @@ class Preferences():
         self.read_work_time()
 
     def save_preferences(self, work_time, short_break_time, long_break_time, start_stop_keybind, show_time_keybind):
+        "Save preferences"
+
         keybinds.instance.unbind()
 
         obj = {self.KEY_WORK_TIME: work_time, self.KEY_SHORT_BREAK_TIME: short_break_time, self.KEY_LONG_BREAK_TIME: long_break_time, self.KEY_START_STOP_KEYBIND: start_stop_keybind, self.KEY_SHOW_TIME_KEYBIND: show_time_keybind }
@@ -245,6 +252,8 @@ class Preferences():
         keybinds.instance.bind()
 
     def read_work_time(self):
+        "Read work time from file"
+
         try:
             file = open(PREFERENCES_FILENAME, "r")
             dump = json.loads(file.read())
@@ -262,20 +271,25 @@ class Preferences():
             self.SAVED_SHOW_TIME_KEYBIND = self.DEFAULT_SHOW_TIME_KEYBIND
 
     def get_work_time(self):
-            return self.SAVED_WORK_TIME
+        "Get saved work time"
+        return self.SAVED_WORK_TIME
 
     def get_long_break_time(self):
-
-            return self.SAVED_LONG_BREAK_TIME
+        "Get saved long break time"
+        return self.SAVED_LONG_BREAK_TIME
 
     def get_short_break_time(self):
-            return self.SAVED_SHORT_BREAK_TIME
+        "Get short break time"
+        return self.SAVED_SHORT_BREAK_TIME
 
     def get_start_stop_keybind(self):
-            return self.SAVED_START_STOP_KEYBIND
+        "Get start/stop keybind"
+        return self.SAVED_START_STOP_KEYBIND
 
     def get_show_time_keybind(self):
-            return self.SAVED_SHOW_TIME_KEYBIND
+        "Get show time keybind"
+        return self.SAVED_SHOW_TIME_KEYBIND
+
 
 class OptionsWindow(gtk.Window):
     def __init__(self):
