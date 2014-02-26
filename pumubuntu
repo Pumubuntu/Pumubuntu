@@ -161,7 +161,11 @@ class Timer():
         self.thread.event.set()  #run thread
 
     class CountingThread(threading.Thread):
+        "CountingThread"
+
         def __init__(self, text_label,status):
+            "Initializes thread, text label, status and time"
+
             threading.Thread.__init__(self)
             self.text_label = text_label
             self.status = status
@@ -169,12 +173,16 @@ class Timer():
             self.seconds = 0
 
         def stop(self):
+            "Stops the pomodoro"
             self.status.stop()
 
         def nextStage(self):
+            "Advances the pomodoro's status"
             self.status.next() # next status and Play a sound! :D
 
         def run(self):
+            "Runs thread"
+
             while (True): #this thread is not restarted
                 self.event.wait() # wait until we are allowed to run
                 if (self.status.isRunning()):
@@ -192,11 +200,14 @@ class Timer():
                     self.switch_status();
 
         def update_timer(self):
+            "Updates timer"
             self.minutes = self.status.getMinutes()
             self.seconds = 0
+
         def switch_status(self):
+            "Switch to next stage"
             if (self.status.isRunning()):
-                            self.nextStage()
+                self.nextStage()
             #    print("CountingThread: finished..." + str(self.status.isRunning()))
             #else:
             #    print("CountingThread: Pomodoro manually stopped. Status: " + str(self.status.isRunning()))
