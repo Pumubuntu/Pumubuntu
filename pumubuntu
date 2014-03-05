@@ -41,15 +41,17 @@ class Status():
         
     def next(self):
         "Sets and returns the next status"
-
-        if (self.pomodoro_stage >= 4):
-            self.current_status = Status.PAUSE
-            self.pomodoro_stage = 0
-        elif (self.current_status == Status.STOP or self.current_status == Status.PAUSE or self.current_status == Status.BREAK):
+        
+        if (self.current_status == Status.RUN):
+            if (self.pomodoro_stage == 4):
+                self.current_status = Status.PAUSE
+                self.pomodoro_stage = 0
+            else:
+                self.current_status = Status.BREAK
+        else:
             self.current_status = Status.RUN
             self.pomodoro_stage += 1
-        elif (self.current_status == Status.RUN):
-            self.current_status = Status.BREAK
+
         self.notify()
         return self.current_status
 
