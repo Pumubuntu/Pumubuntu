@@ -192,10 +192,12 @@ class Timer():
                         time.sleep(1)
                         self.text_label.set_text("%(minute)02d:%(second)02d" % \
                                         {"minute": self.minutes,"second": self.seconds})
-                        if(self.seconds == 0):
-                            self.seconds = 60
+
+                        if (self.seconds == 0):
+                            self.seconds = 59
                             self.minutes -= 1
-                        self.seconds -= 1
+                        else:
+                            self.seconds -= 1
                     # switch status
                     self.switch_status();
 
