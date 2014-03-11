@@ -195,7 +195,8 @@ class Timer():
                             self.status.isRunning()):
                         time.sleep(1)
                         self.text_label.set_text("{:0>2}:{:0>2}"
-                                .format(self.minutes, self.seconds))
+                                                 .format(self.minutes,
+                                                         self.seconds))
 
                         if (self.seconds == 0):
                             self.seconds = 59
@@ -240,7 +241,7 @@ class Preferences():
         self.read_work_time()
 
     def save_preferences(self, work_time, short_break_time, long_break_time,
-            start_stop_keybind, show_time_keybind):
+                         start_stop_keybind, show_time_keybind):
         "Save preferences"
 
         keybinds.instance.unbind()
@@ -363,16 +364,20 @@ class OptionsWindow(gtk.Window):
                     and self.entry4.get_text() != ""):
                 try:
                     values = map(int, [self.entry1.get_text(),
-                        self.entry2.get_text(), self.entry3.get_text()])
+                                        self.entry2.get_text(),
+                                        self.entry3.get_text()])
                     values.append(self.entry4.get_text())
                     values.append(self.entry5.get_text())
                     self.prefs.save_preferences(values[0], values[1],
-                            values[2], values[3], values[4])
+                                                values[2], values[3],
+                                                values[4])
                     self.destroy()
                 except ValueError:
                     dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
-                            gtk.MESSAGE_INFO, gtk.BUTTONS_NONE,
-                            "Please, just use entire numbers.")
+                                               gtk.MESSAGE_INFO,
+                                               gtk.BUTTONS_NONE,
+                                               "Please, just use entire "
+                                               "numbers.")
                     dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
                     dialog.run()
                     dialog.destroy()
@@ -388,16 +393,17 @@ class Notifications(object):
 
         pynotify.init("pumubuntu")
         self._run = pynotify.Notification("Here we go!",
-                "Time to get to work!")
+                                          "Time to get to work!")
         self._run.set_timeout(1)
         self._stop = pynotify.Notification("Interrupted!",
-                "The pomodoro has been stopped!")
+                                           "The pomodoro has been stopped!")
         self._stop.set_timeout(1)
         self._rest = pynotify.Notification("Break!",
-                "Good job! You earned a break!")
+                                           "Good job! You earned a break!")
         self._rest.set_timeout(1)
         self._pause = pynotify.Notification("Long break!",
-                "Good job! You earned a long break!")
+                                            "Good job! You earned a long "
+                                            "break!")
         self._pause.set_timeout(1)
         self._show = pynotify.Notification("")
         self._show.set_timeout(1)
@@ -454,7 +460,7 @@ class Keybinds(object):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='pumubuntu')
     parser.add_argument('--nopadsp', action="store_true", dest='nopadsp',
-            help='Don\'t try to fix Ubuntu sound using padsp')
+                        help='Don\'t try to fix Ubuntu sound using padsp')
     options = parser.parse_args()
 
     # Ubuntu fix for hearing sound...
@@ -463,7 +469,7 @@ if __name__ == "__main__":
         if(distname == "Ubuntu" and (not options.nopadsp)):
             # restart ourselves using padsp
             os.system("padsp "+resources_dir + "/" + script_name +
-                    " --nopadsp &")
+                      " --nopadsp &")
             exit()
 
     if not(pynotify.init("Pumubuntu")):
@@ -474,8 +480,8 @@ if __name__ == "__main__":
     gtk.gdk.threads_init()
     # Set an app indicator in system tray...
     ind = appindicator.Indicator("Pumubuntu",
-            resources_dir + "/images/flag-blue.png",
-            appindicator.CATEGORY_APPLICATION_STATUS) 
+                                 resources_dir + "/images/flag-blue.png",
+                                 appindicator.CATEGORY_APPLICATION_STATUS) 
     ind.set_status (appindicator.STATUS_ACTIVE)
     ind.set_attention_icon(resources_dir + "/images/flag-blue.png")
 
