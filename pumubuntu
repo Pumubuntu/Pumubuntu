@@ -101,9 +101,9 @@ class Status():
         elif (platform.system() == "Linux"):
             from wave import open as waveOpen
             from ossaudiodev import open as ossOpen
-            s = waveOpen(soundfile,'rb')
-            (nc,sw,fr,nf,comptype, compname) = s.getparams( )
-            dsp = ossOpen('/dev/dsp','w')
+            s = waveOpen(soundfile, 'rb')
+            (nc, sw, fr, nf, comptype, compname) = s.getparams( )
+            dsp = ossOpen('/dev/dsp', 'w')
             try:
                 from ossaudiodev import AFMT_S16_NE
             except ImportError:
@@ -164,7 +164,7 @@ class Timer():
     class CountingThread(threading.Thread):
         "CountingThread"
 
-        def __init__(self, text_label,status):
+        def __init__(self, text_label, status):
             "Initializes thread, text label, status and time"
 
             threading.Thread.__init__(self)
