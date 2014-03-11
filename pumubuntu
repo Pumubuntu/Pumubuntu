@@ -73,8 +73,8 @@ class Status():
     def notify(self):
         "Plays a notification sound"
 
-        soundfile=resources_dir + "/audio/"
-        iconfile=resources_dir + "/images/"
+        soundfile = resources_dir + "/audio/"
+        iconfile = resources_dir + "/images/"
         if (self.current_status == self.STOP):
             soundfile += "stop.wav"
             iconfile += "flag-blue.png"
@@ -191,7 +191,7 @@ class Timer():
                 if (self.status.isRunning()):
                     # maybe we were stopped, so we have to update our timer!
                     self.update_timer()
-                    while(not(self.minutes==0 and self.seconds==0) and
+                    while(not(self.minutes == 0 and self.seconds == 0) and
                             self.status.isRunning()):
                         time.sleep(1)
                         self.text_label.set_text("{:0>2}:{:0>2}"
@@ -234,10 +234,10 @@ class Preferences():
         self.DEFAULT_START_STOP_KEYBIND = "<Ctrl><Alt>P"
         self.DEFAULT_SHOW_TIME_KEYBIND = "<Ctrl><Alt>space"
         self.SAVED_WORK_TIME = 0
-        self.SAVED_LONG_BREAK_TIME =0
-        self.SAVED_SHORT_BREAK_TIME =0
-        self.SAVED_START_STOP_KEYBIND =""
-        self.SAVED_SHOW_TIME_KEYBIND =""
+        self.SAVED_LONG_BREAK_TIME = 0
+        self.SAVED_SHORT_BREAK_TIME = 0
+        self.SAVED_START_STOP_KEYBIND = ""
+        self.SAVED_SHOW_TIME_KEYBIND = ""
         self.read_work_time()
 
     def save_preferences(self, work_time, short_break_time, long_break_time,
