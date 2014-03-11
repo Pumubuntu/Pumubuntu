@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-print("Import Python modules. If one is missing get it with \"sudo apt-get install python-...\".");
+print("Import Python modules. If one is missing get it with \"sudo apt-get install python-...\".")
 
 import gobject
 import gtk
@@ -199,7 +199,7 @@ class Timer():
                         else:
                             self.seconds -= 1
                     # switch status
-                    self.switch_status();
+                    self.switch_status()
 
         def update_timer(self):
             "Updates timer"
