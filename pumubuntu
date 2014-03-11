@@ -141,8 +141,6 @@ class Timer():
         "Initializes thread"
 
         self.thread = self.CountingThread(text_label, status)
-        self.thread.daemon=True
-        self.thread.event = threading.Event()
         self.thread.event.clear()
         self.thread.start()
 
@@ -168,6 +166,8 @@ class Timer():
 
             threading.Thread.__init__(self)
             self.text_label = text_label
+            self.daemon = True
+            self.event = threading.Event()
             self.status = status
             self.minutes = 0 #wait until someone tells us to start
             self.seconds = 0
