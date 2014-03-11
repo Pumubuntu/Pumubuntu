@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-print("Import Python modules. If one is missing get it with \"sudo apt-get install python-...\".")
+print('Import Python modules. If one is missing get it with',
+        '"sudo apt-get install python-..."')
 
 import gobject
 import gtk
@@ -57,7 +58,8 @@ class Status():
         "Stops the pomodoro and resets the pomodoro count to 0"
 
         self.current_status = Status.STOP
-        self.pomodoro_stage = 0 #we reset and start again. If a Pomodoro Begins, It Has to Ring
+        #we reset and start again. If a Pomodoro Begins, It Has to Ring
+        self.pomodoro_stage = 0 
         self.notify()
 
     def isRunning(self):
@@ -155,7 +157,8 @@ class Timer():
 
     def start(self):
         "Starts a new pomodoro and run the thread"
-        self.thread.nextStage() # start new pomodoro (we were reset by the stop method. remember?)
+        # start new pomodoro (we were reset by the stop method. remember?)
+        self.thread.nextStage() 
         self.thread.event.set()  #run thread
 
     class CountingThread(threading.Thread):
@@ -188,10 +191,11 @@ class Timer():
                 if (self.status.isRunning()):
                     # maybe we were stopped, so we have to update our timer!
                     self.update_timer()
-                    while(not(self.minutes==0 and self.seconds==0) and self.status.isRunning()):
+                    while(not(self.minutes==0 and self.seconds==0) and
+                            self.status.isRunning()):
                         time.sleep(1)
-                        self.text_label.set_text("%(minute)02d:%(second)02d" % \
-                                        {"minute": self.minutes,"second": self.seconds})
+                        self.text_label.set_text("{:0>2}:{:0>2}"
+                                .format(self.minutes, self.seconds))
 
                         if (self.seconds == 0):
                             self.seconds = 59
@@ -210,9 +214,6 @@ class Timer():
             "Switch to next stage"
             if (self.status.isRunning()):
                 self.nextStage()
-            #    print("CountingThread: finished..." + str(self.status.isRunning()))
-            #else:
-            #    print("CountingThread: Pomodoro manually stopped. Status: " + str(self.status.isRunning()))
 
 
 class Preferences():
@@ -238,12 +239,17 @@ class Preferences():
         self.SAVED_SHOW_TIME_KEYBIND =""
         self.read_work_time()
 
-    def save_preferences(self, work_time, short_break_time, long_break_time, start_stop_keybind, show_time_keybind):
+    def save_preferences(self, work_time, short_break_time, long_break_time,
+            start_stop_keybind, show_time_keybind):
         "Save preferences"
 
         keybinds.instance.unbind()
 
-        obj = {self.KEY_WORK_TIME: work_time, self.KEY_SHORT_BREAK_TIME: short_break_time, self.KEY_LONG_BREAK_TIME: long_break_time, self.KEY_START_STOP_KEYBIND: start_stop_keybind, self.KEY_SHOW_TIME_KEYBIND: show_time_keybind }
+        obj = {self.KEY_WORK_TIME: work_time,
+                self.KEY_SHORT_BREAK_TIME: short_break_time,
+                self.KEY_LONG_BREAK_TIME: long_break_time,
+                self.KEY_START_STOP_KEYBIND: start_stop_keybind,
+                self.KEY_SHOW_TIME_KEYBIND: show_time_keybind}
         dump = json.dumps(obj)
         file = open(PREFERENCES_FILENAME, "w")
         file.write(dump)
@@ -352,15 +358,21 @@ class OptionsWindow(gtk.Window):
         "Window's events"
 
         if(event == "save"):
-            if(self.entry1.get_text() != "" and self.entry2.get_text() != "" and self.entry3.get_text() != ""and self.entry4.get_text() != ""):
+            if(self.entry1.get_text() != "" and self.entry2.get_text() != ""
+                    and self.entry3.get_text() != ""
+                    and self.entry4.get_text() != ""):
                 try:
-                    values = map(int, [ self.entry1.get_text(), self.entry2.get_text(), self.entry3.get_text()])
+                    values = map(int, [self.entry1.get_text(),
+                        self.entry2.get_text(), self.entry3.get_text()])
                     values.append(self.entry4.get_text())
                     values.append(self.entry5.get_text())
-                    self.prefs.save_preferences(values[0], values[1], values[2], values[3], values[4])
+                    self.prefs.save_preferences(values[0], values[1],
+                            values[2], values[3], values[4])
                     self.destroy()
                 except ValueError:
-                    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE, "Please, just use entire numbers.")
+                    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
+                            gtk.MESSAGE_INFO, gtk.BUTTONS_NONE,
+                            "Please, just use entire numbers.")
                     dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
                     dialog.run()
                     dialog.destroy()
@@ -375,13 +387,17 @@ class Notifications(object):
         "Initializes notification handler and creates notifications"
 
         pynotify.init("pumubuntu")
-        self._run = pynotify.Notification("Here we go!","Time to get to work!")
+        self._run = pynotify.Notification("Here we go!",
+                "Time to get to work!")
         self._run.set_timeout(1)
-        self._stop = pynotify.Notification("Interrupted!","The pomodoro has been stopped!")
+        self._stop = pynotify.Notification("Interrupted!",
+                "The pomodoro has been stopped!")
         self._stop.set_timeout(1)
-        self._rest = pynotify.Notification("Break!","Good job! You earned a break!")
+        self._rest = pynotify.Notification("Break!",
+                "Good job! You earned a break!")
         self._rest.set_timeout(1)
-        self._pause = pynotify.Notification("Long break!","Good job! You earned a long break!")
+        self._pause = pynotify.Notification("Long break!",
+                "Good job! You earned a long break!")
         self._pause.set_timeout(1)
         self._show = pynotify.Notification("")
         self._show.set_timeout(1)
@@ -437,7 +453,8 @@ class Keybinds(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='pumubuntu')
-    parser.add_argument('--nopadsp', action="store_true", dest='nopadsp', help='Don\'t try to fix Ubuntu sound using padsp')
+    parser.add_argument('--nopadsp', action="store_true", dest='nopadsp',
+            help='Don\'t try to fix Ubuntu sound using padsp')
     options = parser.parse_args()
 
     # Ubuntu fix for hearing sound...
@@ -445,7 +462,8 @@ if __name__ == "__main__":
         (distname, ver, id) = platform.linux_distribution()
         if(distname == "Ubuntu" and (not options.nopadsp)):
             # restart ourselves using padsp
-            os.system("padsp "+resources_dir + "/" + script_name +" --nopadsp &")
+            os.system("padsp "+resources_dir + "/" + script_name +
+                    " --nopadsp &")
             exit()
 
     if not(pynotify.init("Pumubuntu")):
@@ -455,7 +473,9 @@ if __name__ == "__main__":
     
     gtk.gdk.threads_init()
     # Set an app indicator in system tray...
-    ind = appindicator.Indicator("Pumubuntu", resources_dir + "/images/flag-blue.png", appindicator.CATEGORY_APPLICATION_STATUS) 
+    ind = appindicator.Indicator("Pumubuntu",
+            resources_dir + "/images/flag-blue.png",
+            appindicator.CATEGORY_APPLICATION_STATUS) 
     ind.set_status (appindicator.STATUS_ACTIVE)
     ind.set_attention_icon(resources_dir + "/images/flag-blue.png")
 
@@ -474,8 +494,8 @@ if __name__ == "__main__":
         elif(event == "options"):
             OptionsWindow().show_all()
         elif(event == "show_time"):
-            label = "%(minute)02d:%(second)02d" % \
-                                        {"minute": timer.thread.minutes,"second": timer.thread.seconds}
+            label = "{:0>2}:{:0>2}".format(timer.thread.minutes,
+                    timer.thread.seconds)
             status.notifications.show(label)
 
     keybinds = Keybinds(menu_event, Preferences())
