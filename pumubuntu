@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-print("Import Python modules. If one is missing get it with \"sudo apt-get install python-...\".");
+print('Import Python modules. If one is missing get it with',
+      '"sudo apt-get install python-..."')
 
 import gobject
 import gtk
@@ -14,8 +15,6 @@ import os
 import sys
 import argparse
 import keybinder
-import pynotify
-
 
 
 #resources_dir = os.getcwd()
@@ -23,6 +22,8 @@ resources_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 script_name = os.path.basename(sys.argv[0])
 
 PREFERENCES_FILENAME = os.path.join(resources_dir, "prefs.json")
+
+
 class Status():
     """Pomodoro Status. Takes 4 possible values:
       - STOP, the pomodoro timer is not running
@@ -38,10 +39,10 @@ class Status():
         self.pomodoro_stage = 0
         self.indicator = notification_icon
         self.notifications = Notifications()
-        
+
     def next(self):
         "Sets and returns the next status"
-        
+
         if (self.current_status == Status.RUN):
             if (self.pomodoro_stage == 4):
                 self.current_status = Status.PAUSE
@@ -59,7 +60,8 @@ class Status():
         "Stops the pomodoro and resets the pomodoro count to 0"
 
         self.current_status = Status.STOP
-        self.pomodoro_stage = 0 #we reset and start again. If a Pomodoro Begins, It Has to Ring
+        #we reset and start again. If a Pomodoro Begins, It Has to Ring
+        self.pomodoro_stage = 0
         self.notify()
 
     def isRunning(self):
@@ -73,8 +75,8 @@ class Status():
     def notify(self):
         "Plays a notification sound"
 
-        soundfile=resources_dir + "/audio/"
-        iconfile=resources_dir + "/images/"
+        soundfile = resources_dir + "/audio/"
+        iconfile = resources_dir + "/images/"
         if (self.current_status == self.STOP):
             soundfile += "stop.wav"
             iconfile += "flag-blue.png"
@@ -97,13 +99,13 @@ class Status():
 
         if platform.system() == "Windows":
             from winsound import PlaySound, SND_FILENAME, SND_ASYNC
-            PlaySound(soundfile, SND_FILENAME|SND_ASYNC)
+            PlaySound(soundfile, SND_FILENAME | SND_ASYNC)
         elif (platform.system() == "Linux"):
             from wave import open as waveOpen
             from ossaudiodev import open as ossOpen
-            s = waveOpen(soundfile,'rb')
-            (nc,sw,fr,nf,comptype, compname) = s.getparams( )
-            dsp = ossOpen('/dev/dsp','w')
+            s = waveOpen(soundfile, 'rb')
+            (nc, sw, fr, nf, comptype, compname) = s.getparams()
+            dsp = ossOpen('/dev/dsp', 'w')
             try:
                 from ossaudiodev import AFMT_S16_NE
             except ImportError:
@@ -117,12 +119,12 @@ class Status():
             dsp.write(data)
             dsp.close()
 
-    def getMinutes(self): #returns current status minutes
+    def getMinutes(self):
         "Returns current status minutes"
 
         prefs = Preferences()
         if (self.current_status == self.STOP):
-            return 0 #minutes
+            return 0  # minutes
         elif (self.current_status == self.RUN):
             return prefs.get_work_time()
         elif (self.current_status == self.BREAK):
@@ -143,8 +145,6 @@ class Timer():
         "Initializes thread"
 
         self.thread = self.CountingThread(text_label, status)
-        self.thread.daemon=True
-        self.thread.event = threading.Event()
         self.thread.event.clear()
         self.thread.start()
 
@@ -154,24 +154,27 @@ class Timer():
 
     def stop(self):
         "Pauses the thread and resets the pomodoro"
-        self.thread.event.clear() # pause thread
-        self.thread.stop() # reset pomodoro
+        self.thread.event.clear()  # pause thread
+        self.thread.stop()  # reset pomodoro
 
     def start(self):
         "Starts a new pomodoro and run the thread"
-        self.thread.nextStage() # start new pomodoro (we were reset by the stop method. remember?)
-        self.thread.event.set()  #run thread
+        # start new pomodoro (we were reset by the stop method. remember?)
+        self.thread.nextStage()
+        self.thread.event.set()  # run thread
 
     class CountingThread(threading.Thread):
         "CountingThread"
 
-        def __init__(self, text_label,status):
+        def __init__(self, text_label, status):
             "Initializes thread, text label, status and time"
 
             threading.Thread.__init__(self)
             self.text_label = text_label
+            self.daemon = True
+            self.event = threading.Event()
             self.status = status
-            self.minutes = 0 #wait until someone tells us to start
+            self.minutes = 0  # wait until someone tells us to start
             self.seconds = 0
 
         def stop(self):
@@ -180,20 +183,22 @@ class Timer():
 
         def nextStage(self):
             "Advances the pomodoro's status"
-            self.status.next() # next status and Play a sound! :D
+            self.status.next()  # next status and Play a sound! :D
 
         def run(self):
             "Runs thread"
 
-            while (True): #this thread is not restarted
-                self.event.wait() # wait until we are allowed to run
+            while (True):  # this thread is not restarted
+                self.event.wait()  # wait until we are allowed to run
                 if (self.status.isRunning()):
                     # maybe we were stopped, so we have to update our timer!
                     self.update_timer()
-                    while(not(self.minutes==0 and self.seconds==0) and self.status.isRunning()):
+                    while(not(self.minutes == 0 and self.seconds == 0) and
+                            self.status.isRunning()):
                         time.sleep(1)
-                        self.text_label.set_text("%(minute)02d:%(second)02d" % \
-                                        {"minute": self.minutes,"second": self.seconds})
+                        self.text_label.set_text("{:0>2}:{:0>2}"
+                                                 .format(self.minutes,
+                                                         self.seconds))
 
                         if (self.seconds == 0):
                             self.seconds = 59
@@ -201,7 +206,7 @@ class Timer():
                         else:
                             self.seconds -= 1
                     # switch status
-                    self.switch_status();
+                    self.switch_status()
 
         def update_timer(self):
             "Updates timer"
@@ -212,9 +217,6 @@ class Timer():
             "Switch to next stage"
             if (self.status.isRunning()):
                 self.nextStage()
-            #    print("CountingThread: finished..." + str(self.status.isRunning()))
-            #else:
-            #    print("CountingThread: Pomodoro manually stopped. Status: " + str(self.status.isRunning()))
 
 
 class Preferences():
@@ -234,18 +236,23 @@ class Preferences():
         self.DEFAULT_START_STOP_KEYBIND = "<Ctrl><Alt>P"
         self.DEFAULT_SHOW_TIME_KEYBIND = "<Ctrl><Alt>space"
         self.SAVED_WORK_TIME = 0
-        self.SAVED_LONG_BREAK_TIME =0
-        self.SAVED_SHORT_BREAK_TIME =0
-        self.SAVED_START_STOP_KEYBIND =""
-        self.SAVED_SHOW_TIME_KEYBIND =""
+        self.SAVED_LONG_BREAK_TIME = 0
+        self.SAVED_SHORT_BREAK_TIME = 0
+        self.SAVED_START_STOP_KEYBIND = ""
+        self.SAVED_SHOW_TIME_KEYBIND = ""
         self.read_work_time()
 
-    def save_preferences(self, work_time, short_break_time, long_break_time, start_stop_keybind, show_time_keybind):
+    def save_preferences(self, work_time, short_break_time, long_break_time,
+                         start_stop_keybind, show_time_keybind):
         "Save preferences"
 
         keybinds.instance.unbind()
 
-        obj = {self.KEY_WORK_TIME: work_time, self.KEY_SHORT_BREAK_TIME: short_break_time, self.KEY_LONG_BREAK_TIME: long_break_time, self.KEY_START_STOP_KEYBIND: start_stop_keybind, self.KEY_SHOW_TIME_KEYBIND: show_time_keybind }
+        obj = {self.KEY_WORK_TIME: work_time,
+               self.KEY_SHORT_BREAK_TIME: short_break_time,
+               self.KEY_LONG_BREAK_TIME: long_break_time,
+               self.KEY_START_STOP_KEYBIND: start_stop_keybind,
+               self.KEY_SHOW_TIME_KEYBIND: show_time_keybind}
         dump = json.dumps(obj)
         file = open(PREFERENCES_FILENAME, "w")
         file.write(dump)
@@ -302,7 +309,7 @@ class OptionsWindow(gtk.Window):
         "Create window"
 
         gtk.Window.__init__(self)
-        self.set_title("Pumubuntu") # TODO: Set an icon for this window...
+        self.set_title("Pumubuntu")  # TODO: Set an icon for this window...
         self.prefs = Preferences()
         self.main_box = gtk.VBox()
         self.box1 = gtk.HBox()
@@ -347,22 +354,32 @@ class OptionsWindow(gtk.Window):
         self.button2.connect("clicked", self.options_event, "quit")
         self.box6.add(self.button1)
         self.box6.add(self.button2)
-        self.main_box.add(self.box6) # TODO: Add a restore values buttom...
+        self.main_box.add(self.box6)  # TODO: Add a restore values buttom...
         self.add(self.main_box)
 
     def options_event(self, button, event):
         "Window's events"
 
         if(event == "save"):
-            if(self.entry1.get_text() != "" and self.entry2.get_text() != "" and self.entry3.get_text() != ""and self.entry4.get_text() != ""):
+            if(self.entry1.get_text() != "" and self.entry2.get_text() != ""
+                    and self.entry3.get_text() != ""
+                    and self.entry4.get_text() != ""):
                 try:
-                    values = map(int, [ self.entry1.get_text(), self.entry2.get_text(), self.entry3.get_text()])
+                    values = map(int, [self.entry1.get_text(),
+                                       self.entry2.get_text(),
+                                       self.entry3.get_text()])
                     values.append(self.entry4.get_text())
                     values.append(self.entry5.get_text())
-                    self.prefs.save_preferences(values[0], values[1], values[2], values[3], values[4])
+                    self.prefs.save_preferences(values[0], values[1],
+                                                values[2], values[3],
+                                                values[4])
                     self.destroy()
                 except ValueError:
-                    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_NONE, "Please, just use entire numbers.")
+                    dialog = gtk.MessageDialog(None, gtk.DIALOG_MODAL,
+                                               gtk.MESSAGE_INFO,
+                                               gtk.BUTTONS_NONE,
+                                               "Please, just use entire "
+                                               "numbers.")
                     dialog.add_button(gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)
                     dialog.run()
                     dialog.destroy()
@@ -377,13 +394,18 @@ class Notifications(object):
         "Initializes notification handler and creates notifications"
 
         pynotify.init("pumubuntu")
-        self._run = pynotify.Notification("Here we go!","Time to get to work!")
+        self._run = pynotify.Notification("Here we go!",
+                                          "Time to get to work!")
         self._run.set_timeout(1)
-        self._stop = pynotify.Notification("Interrupted!","The pomodoro has been stopped!")
+        self._stop = pynotify.Notification("Interrupted!",
+                                           "The pomodoro has been stopped!")
         self._stop.set_timeout(1)
-        self._rest = pynotify.Notification("Break!","Good job! You earned a break!")
+        self._rest = pynotify.Notification("Break!",
+                                           "Good job! You earned a break!")
         self._rest.set_timeout(1)
-        self._pause = pynotify.Notification("Long break!","Good job! You earned a long break!")
+        self._pause = pynotify.Notification("Long break!",
+                                            "Good job! You earned a long "
+                                            "break!")
         self._pause.set_timeout(1)
         self._show = pynotify.Notification("")
         self._show.set_timeout(1)
@@ -439,7 +461,8 @@ class Keybinds(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='pumubuntu')
-    parser.add_argument('--nopadsp', action="store_true", dest='nopadsp', help='Don\'t try to fix Ubuntu sound using padsp')
+    parser.add_argument('--nopadsp', action="store_true", dest='nopadsp',
+                        help='Don\'t try to fix Ubuntu sound using padsp')
     options = parser.parse_args()
 
     # Ubuntu fix for hearing sound...
@@ -447,37 +470,37 @@ if __name__ == "__main__":
         (distname, ver, id) = platform.linux_distribution()
         if(distname == "Ubuntu" and (not options.nopadsp)):
             # restart ourselves using padsp
-            os.system("padsp "+resources_dir + "/" + script_name +" --nopadsp &")
+            os.system("padsp "+resources_dir + "/" + script_name +
+                      " --nopadsp &")
             exit()
 
     if not(pynotify.init("Pumubuntu")):
         print("[!] Error: Could not load pynotify...")
         exit()
 
-    
     gtk.gdk.threads_init()
     # Set an app indicator in system tray...
-    ind = appindicator.Indicator("Pumubuntu", resources_dir + "/images/flag-blue.png", appindicator.CATEGORY_APPLICATION_STATUS) 
-    ind.set_status (appindicator.STATUS_ACTIVE)
+    ind = appindicator.Indicator("Pumubuntu",
+                                 resources_dir + "/images/flag-blue.png",
+                                 appindicator.CATEGORY_APPLICATION_STATUS)
+    ind.set_status(appindicator.STATUS_ACTIVE)
     ind.set_attention_icon(resources_dir + "/images/flag-blue.png")
 
-    status = Status(ind) # we use this here and there
+    status = Status(ind)  # we use this here and there
 
     def menu_event(menu_item, event):
         if(event == "play_pause"):
             if (timer.isRunning()):
-                
                 timer.stop()
             else:
-                
                 timer.start()
         elif(event == "exit"):
             gtk.main_quit()
         elif(event == "options"):
             OptionsWindow().show_all()
         elif(event == "show_time"):
-            label = "%(minute)02d:%(second)02d" % \
-                                        {"minute": timer.thread.minutes,"second": timer.thread.seconds}
+            label = "{:0>2}:{:0>2}".format(timer.thread.minutes,
+                    timer.thread.seconds)
             status.notifications.show(label)
 
     keybinds = Keybinds(menu_event, Preferences())
@@ -491,7 +514,6 @@ if __name__ == "__main__":
     menu_item.connect("activate", menu_event, "play_pause")
     menu_item.show()
     menu.append(menu_item)
-
 
     menu_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
     menu_item.connect("activate", menu_event, "options")
@@ -510,4 +532,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("")
     exit()
-
