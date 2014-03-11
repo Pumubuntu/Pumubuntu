@@ -22,6 +22,8 @@ resources_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 script_name = os.path.basename(sys.argv[0])
 
 PREFERENCES_FILENAME = os.path.join(resources_dir, "prefs.json")
+
+
 class Status():
     """Pomodoro Status. Takes 4 possible values:
       - STOP, the pomodoro timer is not running
@@ -37,10 +39,10 @@ class Status():
         self.pomodoro_stage = 0
         self.indicator = notification_icon
         self.notifications = Notifications()
-        
+
     def next(self):
         "Sets and returns the next status"
-        
+
         if (self.current_status == Status.RUN):
             if (self.pomodoro_stage == 4):
                 self.current_status = Status.PAUSE
@@ -59,7 +61,7 @@ class Status():
 
         self.current_status = Status.STOP
         #we reset and start again. If a Pomodoro Begins, It Has to Ring
-        self.pomodoro_stage = 0 
+        self.pomodoro_stage = 0
         self.notify()
 
     def isRunning(self):
@@ -97,12 +99,12 @@ class Status():
 
         if platform.system() == "Windows":
             from winsound import PlaySound, SND_FILENAME, SND_ASYNC
-            PlaySound(soundfile, SND_FILENAME|SND_ASYNC)
+            PlaySound(soundfile, SND_FILENAME | SND_ASYNC)
         elif (platform.system() == "Linux"):
             from wave import open as waveOpen
             from ossaudiodev import open as ossOpen
             s = waveOpen(soundfile, 'rb')
-            (nc, sw, fr, nf, comptype, compname) = s.getparams( )
+            (nc, sw, fr, nf, comptype, compname) = s.getparams()
             dsp = ossOpen('/dev/dsp', 'w')
             try:
                 from ossaudiodev import AFMT_S16_NE
@@ -122,7 +124,7 @@ class Status():
 
         prefs = Preferences()
         if (self.current_status == self.STOP):
-            return 0  #minutes
+            return 0  # minutes
         elif (self.current_status == self.RUN):
             return prefs.get_work_time()
         elif (self.current_status == self.BREAK):
@@ -158,8 +160,8 @@ class Timer():
     def start(self):
         "Starts a new pomodoro and run the thread"
         # start new pomodoro (we were reset by the stop method. remember?)
-        self.thread.nextStage() 
-        self.thread.event.set()  #run thread
+        self.thread.nextStage()
+        self.thread.event.set()  # run thread
 
     class CountingThread(threading.Thread):
         "CountingThread"
@@ -172,7 +174,7 @@ class Timer():
             self.daemon = True
             self.event = threading.Event()
             self.status = status
-            self.minutes = 0  #wait until someone tells us to start
+            self.minutes = 0  # wait until someone tells us to start
             self.seconds = 0
 
         def stop(self):
@@ -186,7 +188,7 @@ class Timer():
         def run(self):
             "Runs thread"
 
-            while (True):  #this thread is not restarted
+            while (True):  # this thread is not restarted
                 self.event.wait()  # wait until we are allowed to run
                 if (self.status.isRunning()):
                     # maybe we were stopped, so we have to update our timer!
@@ -476,13 +478,12 @@ if __name__ == "__main__":
         print("[!] Error: Could not load pynotify...")
         exit()
 
-    
     gtk.gdk.threads_init()
     # Set an app indicator in system tray...
     ind = appindicator.Indicator("Pumubuntu",
                                  resources_dir + "/images/flag-blue.png",
-                                 appindicator.CATEGORY_APPLICATION_STATUS) 
-    ind.set_status (appindicator.STATUS_ACTIVE)
+                                 appindicator.CATEGORY_APPLICATION_STATUS)
+    ind.set_status(appindicator.STATUS_ACTIVE)
     ind.set_attention_icon(resources_dir + "/images/flag-blue.png")
 
     status = Status(ind)  # we use this here and there
@@ -490,10 +491,8 @@ if __name__ == "__main__":
     def menu_event(menu_item, event):
         if(event == "play_pause"):
             if (timer.isRunning()):
-                
                 timer.stop()
             else:
-                
                 timer.start()
         elif(event == "exit"):
             gtk.main_quit()
@@ -516,7 +515,6 @@ if __name__ == "__main__":
     menu_item.show()
     menu.append(menu_item)
 
-
     menu_item = gtk.ImageMenuItem(gtk.STOCK_PREFERENCES)
     menu_item.connect("activate", menu_event, "options")
     menu_item.show()
@@ -534,4 +532,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("")
     exit()
-
