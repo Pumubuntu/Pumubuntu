@@ -117,12 +117,12 @@ class Status():
             dsp.write(data)
             dsp.close()
 
-    def getMinutes(self): #returns current status minutes
+    def getMinutes(self):
         "Returns current status minutes"
 
         prefs = Preferences()
         if (self.current_status == self.STOP):
-            return 0 #minutes
+            return 0  #minutes
         elif (self.current_status == self.RUN):
             return prefs.get_work_time()
         elif (self.current_status == self.BREAK):
@@ -152,8 +152,8 @@ class Timer():
 
     def stop(self):
         "Pauses the thread and resets the pomodoro"
-        self.thread.event.clear() # pause thread
-        self.thread.stop() # reset pomodoro
+        self.thread.event.clear()  # pause thread
+        self.thread.stop()  # reset pomodoro
 
     def start(self):
         "Starts a new pomodoro and run the thread"
@@ -172,7 +172,7 @@ class Timer():
             self.daemon = True
             self.event = threading.Event()
             self.status = status
-            self.minutes = 0 #wait until someone tells us to start
+            self.minutes = 0  #wait until someone tells us to start
             self.seconds = 0
 
         def stop(self):
@@ -181,13 +181,13 @@ class Timer():
 
         def nextStage(self):
             "Advances the pomodoro's status"
-            self.status.next() # next status and Play a sound! :D
+            self.status.next()  # next status and Play a sound! :D
 
         def run(self):
             "Runs thread"
 
-            while (True): #this thread is not restarted
-                self.event.wait() # wait until we are allowed to run
+            while (True):  #this thread is not restarted
+                self.event.wait()  # wait until we are allowed to run
                 if (self.status.isRunning()):
                     # maybe we were stopped, so we have to update our timer!
                     self.update_timer()
@@ -307,7 +307,7 @@ class OptionsWindow(gtk.Window):
         "Create window"
 
         gtk.Window.__init__(self)
-        self.set_title("Pumubuntu") # TODO: Set an icon for this window...
+        self.set_title("Pumubuntu")  # TODO: Set an icon for this window...
         self.prefs = Preferences()
         self.main_box = gtk.VBox()
         self.box1 = gtk.HBox()
@@ -352,7 +352,7 @@ class OptionsWindow(gtk.Window):
         self.button2.connect("clicked", self.options_event, "quit")
         self.box6.add(self.button1)
         self.box6.add(self.button2)
-        self.main_box.add(self.box6) # TODO: Add a restore values buttom...
+        self.main_box.add(self.box6)  # TODO: Add a restore values buttom...
         self.add(self.main_box)
 
     def options_event(self, button, event):
@@ -485,7 +485,7 @@ if __name__ == "__main__":
     ind.set_status (appindicator.STATUS_ACTIVE)
     ind.set_attention_icon(resources_dir + "/images/flag-blue.png")
 
-    status = Status(ind) # we use this here and there
+    status = Status(ind)  # we use this here and there
 
     def menu_event(menu_item, event):
         if(event == "play_pause"):
