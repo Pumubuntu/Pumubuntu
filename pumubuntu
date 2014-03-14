@@ -138,13 +138,12 @@ class Status():
     PAUSE = 3
 
 
-class Timer():
+class Timer:
     "Pomodoro timer"
 
-    def __init__(self, status, text_label):
+    def __init__(self, status):
         "Initializes thread"
-
-        self.thread = self.CountingThread(text_label, status)
+        self.thread = self.CountingThread(status)
         self.thread.event.clear()
         self.thread.start()
 
@@ -158,65 +157,61 @@ class Timer():
         self.thread.stop()  # reset pomodoro
 
     def start(self):
-        "Starts a new pomodoro and run the thread"
-        # start new pomodoro (we were reset by the stop method. remember?)
-        self.thread.nextStage()
+        "Start a new pomodoro, set time and run the thread"
         self.thread.event.set()  # run thread
 
     class CountingThread(threading.Thread):
         "CountingThread"
 
-        def __init__(self, text_label, status):
-            "Initializes thread, text label, status and time"
-
+        def __init__(self, status):
+            "Stops the pomodoro"
             threading.Thread.__init__(self)
-            self.text_label = text_label
+            self.status = status
             self.daemon = True
             self.event = threading.Event()
-            self.status = status
-            self.minutes = 0  # wait until someone tells us to start
-            self.seconds = 0
+            # mins and secs must be 0 so the run method can switch status
+            self.minutes, self.seconds = 0, 0
+            self.observers = []
+
+        def notify_observers(self):
+            for obs in self.observers:
+                obs.update(self.minutes, self.seconds)
 
         def stop(self):
             "Stops the pomodoro"
             self.status.stop()
 
-        def nextStage(self):
-            "Advances the pomodoro's status"
-            self.status.next()  # next status and Play a sound! :D
-
         def run(self):
             "Runs thread"
+            while(True):
+                self.event.wait()
+                if not (self.minutes == 0 and self.seconds == 0):
+                    time.sleep(1)
+                    if self.seconds == 0:
+                        self.minutes, self.seconds = self.minutes - 1, 59
+                    else:
+                        self.seconds -= 1
+                # Start new pomodoro, break or pause
+                else:
+                    self.status.next()
+                    self.minutes, self.seconds = self.status.getMinutes(), 0
 
-            while (True):  # this thread is not restarted
-                self.event.wait()  # wait until we are allowed to run
-                if (self.status.isRunning()):
-                    # maybe we were stopped, so we have to update our timer!
-                    self.update_timer()
-                    while(not(self.minutes == 0 and self.seconds == 0) and
-                            self.status.isRunning()):
-                        time.sleep(1)
-                        self.text_label.set_text("{:0>2}:{:0>2}"
-                                                 .format(self.minutes,
-                                                         self.seconds))
+                # Update timer displays
+                self.notify_observers()
 
-                        if (self.seconds == 0):
-                            self.seconds = 59
-                            self.minutes -= 1
-                        else:
-                            self.seconds -= 1
-                    # switch status
-                    self.switch_status()
 
-        def update_timer(self):
-            "Updates timer"
-            self.minutes = self.status.getMinutes()
-            self.seconds = 0
+class TimeLabel(gtk.Label):
+    "gtk.Label observer. It's automatically updated by the thread"
 
-        def switch_status(self):
-            "Switch to next stage"
-            if (self.status.isRunning()):
-                self.nextStage()
+    def __init__(self, thread):
+        "Initializes label to 00:00 and registers itself in thread"
+        gtk.Label.__init__(self, "00:00")
+        thread.observers.append(self)
+        self.thread = thread
+
+    def update(self, mins, secs):
+        "Update label with new minutes and seconds"
+        self.set_text("{:0>2}:{:0>2}".format(mins, secs))
 
 
 class Preferences():
@@ -506,9 +501,11 @@ if __name__ == "__main__":
     keybinds = Keybinds(menu_event, Preferences())
     keybinds.bind()
 
+    timer = Timer(status)
+
     # Indicator menu...
     menu = gtk.Menu()
-    label_time = gtk.Label("00:00")
+    label_time = TimeLabel(timer.thread)
     menu_item = gtk.MenuItem()
     menu_item.add(label_time)
     menu_item.connect("activate", menu_event, "play_pause")
@@ -524,8 +521,6 @@ if __name__ == "__main__":
     menu_item.show()
     menu.append(menu_item)
     ind.set_menu(menu)
-
-    timer = Timer(status, label_time)
 
     try:
         gtk.main()
