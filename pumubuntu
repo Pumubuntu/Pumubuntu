@@ -158,9 +158,6 @@ class Timer:
 
     def start(self):
         "Start a new pomodoro, set time and run the thread"
-        self.thread.status.next()  # start new pomodoro
-        self.thread.minutes = self.thread.status.getMinutes()
-        self.thread.seconds = 0
         self.thread.event.set()  # run thread
 
     class CountingThread(threading.Thread):
@@ -173,6 +170,7 @@ class Timer:
             self.text_label = text_label
             self.daemon = True
             self.event = threading.Event()
+            # mins and secs must be 0 so the run method can switch status
             self.minutes, self.seconds = 0, 0
 
         def stop(self):
@@ -183,15 +181,13 @@ class Timer:
             "Runs thread"
             while(True):
                 self.event.wait()
-                if not self.status.isRunning():
-                    continue
                 if not (self.minutes == 0 and self.seconds == 0):
                     time.sleep(1)
                     if self.seconds == 0:
                         self.minutes, self.seconds = self.minutes - 1, 59
                     else:
                         self.seconds -= 1
-                # Current pomodoro or break is finished -> switch status
+                # Start new pomodoro, break or pause
                 else:
                     self.status.next()
                     self.minutes, self.seconds = self.status.getMinutes(), 0
