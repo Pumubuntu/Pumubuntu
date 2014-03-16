@@ -158,6 +158,9 @@ class Timer:
 
     def start(self):
         "Start a new pomodoro, set time and run the thread"
+        self.thread.status.next()
+        self.thread.minutes = self.thread.status.getMinutes()
+        self.thread.seconds = 0
         self.thread.event.set()  # run thread
 
     class CountingThread(threading.Thread):
@@ -185,6 +188,8 @@ class Timer:
             "Runs thread"
             while(True):
                 self.event.wait()
+                if not self.status.isRunning():
+                    continue
                 if not (self.minutes == 0 and self.seconds == 0):
                     time.sleep(1)
                     if self.seconds == 0:
@@ -196,7 +201,6 @@ class Timer:
                     self.status.next()
                     self.minutes, self.seconds = self.status.getMinutes(), 0
 
-                # Update timer displays
                 self.notify_observers()
 
 
