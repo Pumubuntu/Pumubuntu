@@ -391,19 +391,22 @@ class Notifications(object):
 
         Notify.init("pumubuntu")
         self._run = Notify.Notification.new("Here we go!",
-                                            "Time to get to work!")
+                                            "Time to get to work!", None)
         self._run.set_timeout(1)
         self._stop = Notify.Notification.new("Interrupted!",
-                                             "The pomodoro has been stopped!")
+                                             "The pomodoro has been stopped!",
+                                             None)
         self._stop.set_timeout(1)
         self._rest = Notify.Notification.new("Break!",
-                                             "Good job! You earned a break!")
+                                             "Good job! You earned a break!",
+                                             None)
         self._rest.set_timeout(1)
         self._pause = Notify.Notification.new("Long break!",
                                               "Good job! You earned a long "
-                                              "break!")
+                                              "break!",
+                                              None)
         self._pause.set_timeout(1)
-        self._show = Notify.Notification.new("")
+        self._show = Notify.Notification.new("","",None)
         self._show.set_timeout(1)
 
     def run(self):
@@ -514,12 +517,12 @@ if __name__ == "__main__":
     menu_item.show()
     menu.append(menu_item)
 
-    menu_item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_PREFERENCES)
+    menu_item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_PREFERENCES, None)
     menu_item.connect("activate", menu_event, "options")
     menu_item.show()
     menu.append(menu_item)
 
-    menu_item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_QUIT)
+    menu_item = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_QUIT, None)
     menu_item.connect("activate", menu_event, "exit")
     menu_item.show()
     menu.append(menu_item)
