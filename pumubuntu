@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-print('Import Python modules. If one is missing get it with',
-      '"sudo apt-get install python-..."')
+import sys
+if len(sys.argv) == 1:
+    print('Importing Python modules. If one is missing get it with:\n'
+          '  "sudo apt-get install python-..." or\n'
+          '  "sudo apt-get install girX.Y-..." for gi.repository imports.')
 
 from gi.repository import Gtk, Gdk, AppIndicator3, Notify, Keybinder
 
@@ -10,7 +13,6 @@ import threading
 import platform
 import os
 import json
-import sys
 import argparse
 
 
