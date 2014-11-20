@@ -108,6 +108,7 @@ class Status():
             try:
                 from ossaudiodev import AFMT_S16_NE
             except ImportError:
+                import ossaudiodev
                 if byteorder == "little":
                     AFMT_S16_NE = ossaudiodev.AFMT_S16_LE
                 else:
@@ -339,7 +340,8 @@ class OptionsWindow(Gtk.Window):
         start_hotkey_box = Gtk.HBox()
         start_hotkey_label = Gtk.Label(label="Start/Stop hotkey:")
         self.start_hotkey_entry = Gtk.Entry()
-        self.start_hotkey_entry.set_text(str(self.prefs.get_start_stop_keybind()))
+        self.start_hotkey_entry.set_text(
+            str(self.prefs.get_start_stop_keybind()))
         start_hotkey_box.add(start_hotkey_label)
         start_hotkey_box.add(self.start_hotkey_entry)
         main_box.add(start_hotkey_box)
@@ -347,7 +349,8 @@ class OptionsWindow(Gtk.Window):
         showt_hotkey_box = Gtk.HBox()
         showt_hotkey_label = Gtk.Label(label="Show time hotkey:")
         self.showt_hotkey_entry = Gtk.Entry()
-        self.showt_hotkey_entry.set_text(str(self.prefs.get_show_time_keybind()))
+        self.showt_hotkey_entry.set_text(
+            str(self.prefs.get_show_time_keybind()))
         showt_hotkey_box.add(showt_hotkey_label)
         showt_hotkey_box.add(self.showt_hotkey_entry)
         main_box.add(showt_hotkey_box)
@@ -367,9 +370,10 @@ class OptionsWindow(Gtk.Window):
         "Window's events"
 
         if(event == "save"):
-            if(self.work_time_entry.get_text() != "" and self.short_break_entry.get_text() != ""
-                    and self.long_break_entry.get_text() != ""
-                    and self.start_hotkey_entry.get_text() != ""):
+            if(self.work_time_entry.get_text() != ""
+               and self.short_break_entry.get_text() != ""
+               and self.long_break_entry.get_text() != ""
+               and self.start_hotkey_entry.get_text() != ""):
                 try:
                     self.prefs.save_preferences(
                         self.work_time_entry.get_text(),
@@ -508,7 +512,7 @@ if __name__ == "__main__":
             OptionsWindow().show_all()
         elif(event == "show_time"):
             label = "{:0>2}:{:0>2}".format(timer.thread.minutes,
-                    timer.thread.seconds)
+                                           timer.thread.seconds)
             status.notifications.show(label)
 
     keybinds = Keybinds(menu_event, Preferences())
