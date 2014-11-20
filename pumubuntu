@@ -192,7 +192,7 @@ class Timer:
                 if not (self.minutes == 0 and self.seconds == 0):
                     time.sleep(1)
                     if self.seconds == 0:
-                        self.minutes, self.seconds = self.minutes - 1, 59
+                        self.minutes, self.seconds = int(self.minutes) - 1, 59
                     else:
                         self.seconds -= 1
                 # Start new pomodoro, break or pause
