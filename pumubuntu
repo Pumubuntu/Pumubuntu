@@ -365,18 +365,16 @@ class OptionsWindow(Gtk.Window):
         "Window's events"
 
         if(event == "save"):
-            if(self.entry1.get_text() != "" and self.entry2.get_text() != ""
-                    and self.entry3.get_text() != ""
-                    and self.entry4.get_text() != ""):
+            if(self.work_time_entry.get_text() != "" and self.short_break_entry.get_text() != ""
+                    and self.long_break_entry.get_text() != ""
+                    and self.start_hotkey_entry.get_text() != ""):
                 try:
-                    values = map(int, [self.entry1.get_text(),
-                                       self.entry2.get_text(),
-                                       self.entry3.get_text()])
-                    values.append(self.entry4.get_text())
-                    values.append(self.entry5.get_text())
-                    self.prefs.save_preferences(values[0], values[1],
-                                                values[2], values[3],
-                                                values[4])
+                    self.prefs.save_preferences(
+                        self.work_time_entry.get_text(),
+                        self.short_break_entry.get_text(),
+                        self.long_break_entry.get_text(),
+                        self.start_hotkey_entry.get_text(),
+                        self.showt_hotkey_entry.get_text())
                     self.destroy()
                 except ValueError:
                     dialog = Gtk.MessageDialog(None, Gtk.DIALOG_MODAL,
