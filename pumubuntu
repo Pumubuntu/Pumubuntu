@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-print('Import Python modules. If one is missing get it with',
-      '"sudo apt-get install python-..."')
+import sys
+if len(sys.argv) == 1:
+    print('Importing Python modules. If one is missing get it with:\n'
+          '  "sudo apt-get install python-..." or\n'
+          '  "sudo apt-get install girX.Y-..." for gi.repository imports.')
 
 from gi.repository import Gtk, Gdk, AppIndicator3, Notify, Keybinder
 
@@ -10,7 +13,6 @@ import threading
 import platform
 import os
 import json
-import sys
 import argparse
 
 
@@ -106,6 +108,7 @@ class Status():
             try:
                 from ossaudiodev import AFMT_S16_NE
             except ImportError:
+                import ossaudiodev
                 if byteorder == "little":
                     AFMT_S16_NE = ossaudiodev.AFMT_S16_LE
                 else:
@@ -190,7 +193,7 @@ class Timer:
                 if not (self.minutes == 0 and self.seconds == 0):
                     time.sleep(1)
                     if self.seconds == 0:
-                        self.minutes, self.seconds = self.minutes - 1, 59
+                        self.minutes, self.seconds = int(self.minutes) - 1, 59
                     else:
                         self.seconds -= 1
                 # Start new pomodoro, break or pause
@@ -337,7 +340,8 @@ class OptionsWindow(Gtk.Window):
         start_hotkey_box = Gtk.HBox()
         start_hotkey_label = Gtk.Label(label="Start/Stop hotkey:")
         self.start_hotkey_entry = Gtk.Entry()
-        self.start_hotkey_entry.set_text(str(self.prefs.get_start_stop_keybind()))
+        self.start_hotkey_entry.set_text(
+            str(self.prefs.get_start_stop_keybind()))
         start_hotkey_box.add(start_hotkey_label)
         start_hotkey_box.add(self.start_hotkey_entry)
         main_box.add(start_hotkey_box)
@@ -345,7 +349,8 @@ class OptionsWindow(Gtk.Window):
         showt_hotkey_box = Gtk.HBox()
         showt_hotkey_label = Gtk.Label(label="Show time hotkey:")
         self.showt_hotkey_entry = Gtk.Entry()
-        self.showt_hotkey_entry.set_text(str(self.prefs.get_show_time_keybind()))
+        self.showt_hotkey_entry.set_text(
+            str(self.prefs.get_show_time_keybind()))
         showt_hotkey_box.add(showt_hotkey_label)
         showt_hotkey_box.add(self.showt_hotkey_entry)
         main_box.add(showt_hotkey_box)
@@ -365,18 +370,17 @@ class OptionsWindow(Gtk.Window):
         "Window's events"
 
         if(event == "save"):
-            if(self.entry1.get_text() != "" and self.entry2.get_text() != ""
-                    and self.entry3.get_text() != ""
-                    and self.entry4.get_text() != ""):
+            if(self.work_time_entry.get_text() != ""
+               and self.short_break_entry.get_text() != ""
+               and self.long_break_entry.get_text() != ""
+               and self.start_hotkey_entry.get_text() != ""):
                 try:
-                    values = map(int, [self.entry1.get_text(),
-                                       self.entry2.get_text(),
-                                       self.entry3.get_text()])
-                    values.append(self.entry4.get_text())
-                    values.append(self.entry5.get_text())
-                    self.prefs.save_preferences(values[0], values[1],
-                                                values[2], values[3],
-                                                values[4])
+                    self.prefs.save_preferences(
+                        self.work_time_entry.get_text(),
+                        self.short_break_entry.get_text(),
+                        self.long_break_entry.get_text(),
+                        self.start_hotkey_entry.get_text(),
+                        self.showt_hotkey_entry.get_text())
                     self.destroy()
                 except ValueError:
                     dialog = Gtk.MessageDialog(None, Gtk.DIALOG_MODAL,
@@ -508,7 +512,7 @@ if __name__ == "__main__":
             OptionsWindow().show_all()
         elif(event == "show_time"):
             label = "{:0>2}:{:0>2}".format(timer.thread.minutes,
-                    timer.thread.seconds)
+                                           timer.thread.seconds)
             status.notifications.show(label)
 
     keybinds = Keybinds(menu_event, Preferences())
